@@ -193,24 +193,94 @@ public class Board
         return WinStates.None;
     }
 
-    // gets the quality of a board position
-    public int GetBoardQuality(Pieces piece)
+    // checks for three in a row of a piece
+    WinStates CheckTripleLine(int x, int y, int dx, int dy)
     {
-        // getting the current win condition
-        WinStates winState = CheckWin();
+        Pieces side = board[x][y];
+        if (side == Pieces.None) return WinStates.None;
+        for (int d = 1; d < 3; d++) if (board[x + dx * d][y + dy * d] != side) return WinStates.None;
+        if (side == Pieces.Red) return WinStates.WinRed;
+        return WinStates.WinYellow;
+    }
 
-        // finding the value that goes with that condition
-        if (winState == WinStates.None) return 0;  // neutral
-        if (winState == WinStates.Tie) return -1;  // not good but not terrible
-        if ((piece == Pieces.Red && winState == WinStates.WinRed) || (piece == Pieces.Yellow && winState == WinStates.WinYellow)) return 2;  // very good
-        return -2;  // not good, lost
+    // checks for any triples of a piece/color
+    WinStates CheckForTriple()
+    {
+        Pieces side = board[0][0];
+
+        // horizontals
+        int numInRow;
+        for (int y = 0; y < 6; y++)
+        {
+            numInRow = 0;
+            for (int x = 0; x < 7; x++)
+            {
+                if (board[x][y] != side)
+                {
+                    numInRow = 1;
+                    side = board[x][y];
+                }
+                else
+                {
+                    numInRow ++;
+                    if (numInRow == 3 && side != Pieces.None)
+                    {
+                        if (side == Pieces.Red) return WinStates.WinRed;
+                        return WinStates.WinYellow;
+                    }
+                }
+            }
+        }
+
+        // verticals
+        for (int x = 0; x < 7; x++)
+        {
+            numInRow = 0;
+            for (int y = 0; y < 6; y++)
+            {
+                if (board[x][y] != side)
+                {
+                    numInRow = 1;
+                    side = board[x][y];
+                }
+                else
+                {
+                    numInRow ++;
+                    if (numInRow == 3 && side != Pieces.None)
+                    {
+                        if (side == Pieces.Red) return WinStates.WinRed;
+                        return WinStates.WinYellow;
+                    }
+                }
+            }
+        }
+
+        // diagonals
+        for (int y = 0; y < 4; y++) for (int x = 0; x < 5; x++)
+        {
+            WinStates state = CheckTripleLine(x, y, 1, 1);
+            if (state != WinStates.None) return state;
+        }
+        for (int y = 0; y < 4; y++) for (int x = 2; x < 7; x++)
+        {
+            WinStates state = CheckTripleLine(x, y, -1, 1);
+            if (state != WinStates.None) return state;
+        }
+
+        return WinStates.None;
     }
 
     // gets the quality of a board position with a given win state
-    public int GetBoardQuality(Pieces piece, WinStates winState)
+    public float GetBoardQuality(Pieces piece, WinStates winState)
     {
         // finding the value that goes with that condition
-        if (winState == WinStates.None) return 0;  // neutral
+        if (winState == WinStates.None)
+        {
+            WinStates triple = CheckForTriple();
+            if (triple == WinStates.None) return 0;  // neutral
+            if ((piece == Pieces.Red && triple == WinStates.WinRed) || (piece == Pieces.Yellow && triple == WinStates.WinYellow)) return 1;  // good
+            return -1.5f;  // not good, not terrible
+        }
         if (winState == WinStates.Tie) return -1;  // not good but not terrible
         if ((piece == Pieces.Red && winState == WinStates.WinRed) || (piece == Pieces.Yellow && winState == WinStates.WinYellow)) return 2;  // very good
         return -2;  // not good, lost

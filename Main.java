@@ -105,20 +105,22 @@ public class Main
         }
 
         // printing the win/loose/tie condition
-        if (gameState == Board.WinStates.WinRed) System.out.println("You won!!");
-        if (gameState == Board.WinStates.WinYellow) System.out.println("The AI won.");
+        if      (gameState == Board.WinStates.WinRed   ) System.out.println("You won!!");
+        else if (gameState == Board.WinStates.WinYellow) System.out.println("The AI won.");
         else System.out.println("It's a tie...");
     }
 
     // gets the quality of a branch (turn = 0 is X and 1 is O)
     public static float GetBranchQuality(Board board, Board.Pieces AI, int turn, int depth)
     {
+        if (depth > 7) return 0;
+
         // getting the side
         Board.Pieces side = turn == 0 ? Board.Pieces.Red : Board.Pieces.Yellow;
 
         // something went wrong or there is a win/tie/loose
         Board.WinStates winState = board.CheckWin();
-        if (depth > 7 || winState != Board.WinStates.None) return board.GetBoardQuality(AI, winState);
+        if (winState != Board.WinStates.None) return board.GetBoardQuality(AI, winState);
 
         // getting the quality of all branches
         if (turn == 0)  // Red's turn / the players turn
