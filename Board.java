@@ -204,8 +204,9 @@ public class Board
     }
 
     // checks for any triples of a piece/color
-    WinStates CheckForTriple()
+    float[] CheckForNumTriple()
     {
+        float[] numWins = {0, 0};
         Pieces side = board[0][0];
 
         // horizontals
@@ -225,8 +226,9 @@ public class Board
                     numInRow ++;
                     if (numInRow == 3 && side != Pieces.None)
                     {
-                        if (side == Pieces.Red) return WinStates.WinRed;
-                        return WinStates.WinYellow;
+                        if (side == Pieces.Red) numWins[0]++;
+                        else numWins[1]++;
+                        numInRow = 0;
                     }
                 }
             }
@@ -248,8 +250,9 @@ public class Board
                     numInRow ++;
                     if (numInRow == 3 && side != Pieces.None)
                     {
-                        if (side == Pieces.Red) return WinStates.WinRed;
-                        return WinStates.WinYellow;
+                        if (side == Pieces.Red) numWins[0]++;
+                        else numWins[1]++;
+                        numInRow = 0;
                     }
                 }
             }
@@ -259,15 +262,23 @@ public class Board
         for (int y = 0; y < 4; y++) for (int x = 0; x < 5; x++)
         {
             WinStates state = CheckTripleLine(x, y, 1, 1);
-            if (state != WinStates.None) return state;
+            if (state != WinStates.None)
+            {
+                if (state == WinStates.WinRed) numWins[0]++;
+                else numWins[1]++;
+            }
         }
         for (int y = 0; y < 4; y++) for (int x = 2; x < 7; x++)
         {
             WinStates state = CheckTripleLine(x, y, -1, 1);
-            if (state != WinStates.None) return state;
+            if (state != WinStates.None)
+            {
+                if (state == WinStates.WinRed) numWins[0]++;
+                else numWins[1]++;
+            }
         }
 
-        return WinStates.None;
+        return numWins;
     }
 
     // gets the quality of a board position with a given win state
@@ -276,10 +287,23 @@ public class Board
         // finding the value that goes with that condition
         if (winState == WinStates.None)
         {
-            WinStates triple = CheckForTriple();
-            if (triple == WinStates.None) return 0;  // neutral
-            if ((piece == Pieces.Red && triple == WinStates.WinRed) || (piece == Pieces.Yellow && triple == WinStates.WinYellow)) return 1;  // good
-            return -1.5f;  // not good, not terrible
+            float[] triple = CheckForNumTriple();
+            if (triple[0] != 0 || triple[1] != 0)
+            {
+                float quality = 0;
+                if (piece == Pieces.Red)
+                {
+                    quality += triple[0];
+                    quality -= triple[1];
+                }
+                else
+                {
+                    quality -= triple[0];
+                    quality += triple[1];
+                }
+                return quality / 10;
+            }
+            return 0;
         }
         if (winState == WinStates.Tie) return -1;  // not good but not terrible
         if ((piece == Pieces.Red && winState == WinStates.WinRed) || (piece == Pieces.Yellow && winState == WinStates.WinYellow)) return 2;  // very good

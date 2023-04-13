@@ -126,7 +126,7 @@ public class Main
         if (turn == 0)  // Red's turn / the players turn
         {
             // the worst option
-            float worst = 5;
+            float worst = board.GetBoardQuality(AI, winState);
 
             // looping through all spots and finding a valid choice
             for (int x = 0; x < 7; x++)
@@ -156,7 +156,7 @@ public class Main
         // Yellow's turn / the AI's turn
 
         // the best option
-        float best = -5;
+        float best = board.GetBoardQuality(AI, winState);
 
         // looping through all spots and finding a valid choice
         for (int x = 0; x < 7; x++)
