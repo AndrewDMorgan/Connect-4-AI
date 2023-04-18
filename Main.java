@@ -22,7 +22,7 @@ public class Main
         while (gameState == Board.WinStates.None)
         {
             // checking which players turn it is
-            if (turn == 0)  // reds turn
+            if (turn == 0)  // reds turn2
             {
                 System.out.println("(Player) Red's turn");
 
@@ -75,13 +75,14 @@ public class Main
                 {
                     threads.get(i).join();
                     float quality = threads.get(i).GetOutput();
+                    System.out.println("Quality: " + quality + "  X: " + threads.get(i).GetX());
                     if (quality > bestQuality)
                     {
                         // setting the best quality and the position of it
                         bestQuality = quality;
                         bestX = new ArrayList<>();
                     }
-                    if (quality >= bestQuality)
+                    if (quality == bestQuality)
                     {
                         bestX.add(threads.get(i).GetX());
                     }
@@ -113,7 +114,7 @@ public class Main
     // gets the quality of a branch (turn = 0 is X and 1 is O)
     public static float GetBranchQuality(Board board, Board.Pieces AI, int turn, int depth)
     {
-        if (depth > 7) return 0;
+        if (depth > 7) return board.GetBoardQuality(AI, Board.WinStates.None);
 
         // getting the side
         Board.Pieces side = turn == 0 ? Board.Pieces.Red : Board.Pieces.Yellow;
@@ -126,7 +127,7 @@ public class Main
         if (turn == 0)  // Red's turn / the players turn
         {
             // the worst option
-            float worst = board.GetBoardQuality(AI, winState);
+            float worst = 5;
 
             // looping through all spots and finding a valid choice
             for (int x = 0; x < 7; x++)
@@ -156,7 +157,7 @@ public class Main
         // Yellow's turn / the AI's turn
 
         // the best option
-        float best = board.GetBoardQuality(AI, winState);
+        float best = -5;
 
         // looping through all spots and finding a valid choice
         for (int x = 0; x < 7; x++)

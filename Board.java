@@ -287,10 +287,10 @@ public class Board
         // finding the value that goes with that condition
         if (winState == WinStates.None)
         {
+            float quality = 0;
             float[] triple = CheckForNumTriple();
             if (triple[0] != 0 || triple[1] != 0)
             {
-                float quality = 0;
                 if (piece == Pieces.Red)
                 {
                     quality += triple[0];
@@ -301,9 +301,57 @@ public class Board
                     quality -= triple[0];
                     quality += triple[1];
                 }
-                return quality / 10;
+                quality /= 10;
             }
-            return 0;
+
+            // getting the average position of the player and Ai
+            int yellowX = 0;
+            int yellowY = 0;
+            int numYellow = 0;
+            int redX = 0;
+            int redY = 0;
+            int numRed = 0;
+
+            for (int x = 0; x < 7; x++)
+            {
+                for (int y = 0; y < 6; y++)
+                {
+                    Pieces tile = board[x][y];
+                    if (tile == Pieces.Red)
+                    {
+                        redX += x;
+                        redY += y;
+                        numRed++;
+                    }
+                    else if (tile == Pieces.Yellow)
+                    {
+                        yellowX += x;
+                        yellowY += y;
+                        numYellow++;
+                    }
+                }
+            }
+
+            float averageRedX = 3 - Math.abs(3 - redX / (float)numRed);
+            float averageRedY = 5 - redY / (float)numRed;
+
+            float averageYellowX = 3 - Math.abs(3 - yellowX / (float)numYellow);
+            float averageYellowY = 5 - yellowY / (float)numYellow;
+
+            if (piece == Pieces.Red)
+            {
+                quality += (averageRedX + averageRedY) / 8;
+                quality -= (averageYellowX + averageYellowY) / 8;
+                quality += Math.random() - 0.5;
+            }
+            else
+            {
+                quality += (averageYellowX + averageYellowY) / 8;
+                quality -= (averageRedX + averageRedY) / 8;
+                quality += Math.random() - 0.5;
+            }
+
+            return quality;
         }
         if (winState == WinStates.Tie) return -1;  // not good but not terrible
         if ((piece == Pieces.Red && winState == WinStates.WinRed) || (piece == Pieces.Yellow && winState == WinStates.WinYellow)) return 2;  // very good
@@ -320,12 +368,17 @@ public class Board
         String render = "";
 
         // looping through the board and rendering it
+        for (int x = 0; x < 7; x++) render += "|" + (x + 1) + " |";
+        render += "\n";
+
         for (int y = 0; y < 6; y++)
         {
             for (int x = 0; x < 7; x++)
             {
                 // rendering the piece
-                render += pieceColors.get(board[x][y]) + "[]\u001B[0m";
+                String color = pieceColors.get(board[x][y]);
+                if (!color.equals("")) render += "|" + color + "⬤\u001B[0m" + "|";
+                else render += "|  |";
             }
             render += "\n";
         }
