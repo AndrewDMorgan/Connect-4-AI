@@ -301,7 +301,7 @@ public class Board
                     quality -= triple[0];
                     quality += triple[1];
                 }
-                quality /= 10;
+                quality /= 12;
             }
 
             // getting the average position of the player and Ai
@@ -340,22 +340,22 @@ public class Board
 
             if (piece == Pieces.Red)
             {
-                quality += (averageRedX + averageRedY) / 8;
-                quality -= (averageYellowX + averageYellowY) / 8;
-                quality += Math.random() - 0.5;
+                quality += (averageRedX + averageRedY) / 10;
+                quality -= (averageYellowX + averageYellowY) / 12;
+                quality += Math.random() * 0.8 - 0.4;
             }
             else
             {
-                quality += (averageYellowX + averageYellowY) / 8;
-                quality -= (averageRedX + averageRedY) / 8;
-                quality += Math.random() - 0.5;
+                quality += (averageYellowX + averageYellowY) / 10;
+                quality -= (averageRedX + averageRedY) / 10;
+                quality += Math.random() * 0.8 - 0.4;
             }
 
             return quality;
         }
-        if (winState == WinStates.Tie) return -1;  // not good but not terrible
-        if ((piece == Pieces.Red && winState == WinStates.WinRed) || (piece == Pieces.Yellow && winState == WinStates.WinYellow)) return 2;  // very good
-        return -2;  // not good, lost
+        if (winState == WinStates.Tie) return -1.5f;  // not good but not terrible
+        if ((piece == Pieces.Red && winState == WinStates.WinRed) || (piece == Pieces.Yellow && winState == WinStates.WinYellow)) return 3;  // very good
+        return -3;  // not good, lost
     }
 
     // gets the color for a piece

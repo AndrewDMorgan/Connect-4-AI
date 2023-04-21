@@ -114,20 +114,20 @@ public class Main
     // gets the quality of a branch (turn = 0 is X and 1 is O)
     public static float GetBranchQuality(Board board, Board.Pieces AI, int turn, int depth)
     {
-        if (depth > 7) return board.GetBoardQuality(AI, Board.WinStates.None);
+        if (depth > 7) return board.GetBoardQuality(AI, Board.WinStates.None) / (depth / 7f + 1);
 
         // getting the side
         Board.Pieces side = turn == 0 ? Board.Pieces.Red : Board.Pieces.Yellow;
 
         // something went wrong or there is a win/tie/loose
         Board.WinStates winState = board.CheckWin();
-        if (winState != Board.WinStates.None) return board.GetBoardQuality(AI, winState);
+        if (winState != Board.WinStates.None) return board.GetBoardQuality(AI, winState) / (depth / 7f + 1);
 
         // getting the quality of all branches
         if (turn == 0)  // Red's turn / the players turn
         {
             // the worst option
-            float worst = 5;
+            float worst = 999999;
 
             // looping through all spots and finding a valid choice
             for (int x = 0; x < 7; x++)
@@ -145,7 +145,7 @@ public class Main
                     if (quality < worst)
                     {
                         worst = quality;
-                        if (worst == -2) return worst;  // the worst it can get no reason to keep searching
+                        if (worst == -3) return worst;  // the worst it can get no reason to keep searching
                     }
                 }
             }
@@ -157,7 +157,7 @@ public class Main
         // Yellow's turn / the AI's turn
 
         // the best option
-        float best = -5;
+        float best = -999999;
 
         // looping through all spots and finding a valid choice
         for (int x = 0; x < 7; x++)
@@ -175,7 +175,7 @@ public class Main
                 if (quality > best)
                 {
                     best = quality;
-                    if (best == 2) return best;  // the best it can get no reason to keep searching
+                    if (best == 3) return best;  // the best it can get no reason to keep searching
                 }
             }
         }
